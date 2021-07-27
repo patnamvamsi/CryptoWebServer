@@ -21,4 +21,3 @@ urlpatterns = [
     url(r'^home/', include('home.urls')),
     url(r'^', include('home.urls'))
 ]
-git add .
