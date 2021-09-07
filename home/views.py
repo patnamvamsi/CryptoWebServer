@@ -12,7 +12,7 @@ def binance(request):
 
 
 def historicaldata(request):
-    return HttpResponse("Welcome to historical data")
+    return render(request, 'historicaldata.html')
 
 
 def screener(request):

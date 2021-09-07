@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path, include
 from home import views
 
@@ -10,3 +11,5 @@ urlpatterns = [
     path('backtesting', views.backtesting, name='backtesting'),
     path('papertrading', views.papertrading, name='papertrading')
 ]
+
+#urlpatterns += staticfiles_urlpatterns

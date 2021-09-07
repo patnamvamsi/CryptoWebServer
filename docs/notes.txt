@@ -1,2 +1,52 @@
 
 https://getbootstrap.com/docs/5.0/components/navbar/
+
+
+installing kdb+ 32 bit on linuc ubuntu 20
+1. Download kdb 32 bit version and place it in $HOME/q
+show how it looks . (dir structure)
+2. update .profile in $HOME  wiht QPATH=$HOME/q
+
+vamsi@vamsi-XPS-L501X:~/q/l32$ . ./q
+-bash: .: ./q: cannot execute binary file
+
+
+
+3.  sudo apt-get install ia32-libs
+
+vamsi@vamsi-XPS-L501X:~/q/l32$ sudo apt-get install ia32-libs
+[sudo] password for vamsi:
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+Package ia32-libs is not available, but is referred to by another package.
+This may mean that the package is missing, has been obsoleted, or
+is only available from another source
+However the following packages replace it:
+  lib32z1
+
+E: Package 'ia32-libs' has no installation candidate
+
+
+4. if it doesn't work:
+sudo -i
+cd /etc/apt/sources.list.d
+echo "deb http://old-releases.ubuntu.com/ubuntu/ raring main restricted universe multiverse" >ia32-libs-raring.list
+apt-get update
+apt-get install ia32-libs
+
+Other option :
+
+sudo dpkg --add-architecture i386
+sudo apt-get update
+sudo apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386
+
+5. setup profile
+alias q='QHOME=~/q ~/q/l32/q'
+
+. ./.profile
+
+6. sudo apt install rlwrap
+
+
+
