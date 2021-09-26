@@ -1,18 +1,33 @@
-var chart = LightweightCharts.createChart(document.body, {
+var chart_hist = LightweightCharts.createChart(document.body, {
 	width: 600,
   height: 300,
 });
 
-var candleSeries = chart.addCandlestickSeries();
+var candleSeries = chart_hist.addCandlestickSeries();
 
 var period = {
 	timeFrom: { day: 1, month: 1, year: 2018 },
 	timeTo: { day: 1, month: 1, year: 2019 },
 };
-var data = generateBarsData(period);
+//var data = generateBarsData(period);
+data = data.replace(/&quot;/g, '"');
+data = JSON.parse(data);
+
+ohlc= [];
+for (i =0 ; i<data.length ; i++){
+    ohlc.push({
+		time: data[i]["open_time"] ,
+		open: data[i]["open"] ,
+		high: data[i]["high"] ,
+		low: data[i]["low"],
+		close: data[i]["close"]
+	})
+    //candleSeries.candleSeries.update({
+}
+data=ohlc
 candleSeries.setData(data);
 
-var timeScale = chart.timeScale();
+var timeScale = chart_hist.timeScale();
 
 var timer = null;
 timeScale.subscribeVisibleLogicalRangeChange(() => {
@@ -30,7 +45,7 @@ timeScale.subscribeVisibleLogicalRangeChange(() => {
 				 timeFrom: lastTime,
 				 timeTo: firstTime,
 			 };
-			 data = [...generateBarsData(newPeriod), ...data];
+			 //data = [...generateBarsData(newPeriod), ...data];
 			 candleSeries.setData(data);
 		 }
 	 }
@@ -42,7 +57,7 @@ function getBusinessDayBeforeCurrentAt(date, daysDelta) {
 	const dateWithDelta = new Date(Date.UTC(date.year, date.month - 1, date.day - daysDelta, 0, 0, 0, 0));
 	return { year: dateWithDelta.getFullYear(), month: dateWithDelta.getMonth() + 1, day: dateWithDelta.getDate() };
 }
-
+/*
 function generateBarsData(period) {
 	var res = [];
 	var controlPoints = generateControlPoints(res, period);
@@ -110,3 +125,4 @@ function nextBusinessDay(time) {
 function getRandomPrice() {
 	return 10 + Math.round(Math.random() * 10000) / 100;
 }
+*/

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,6 +25,15 @@ SECRET_KEY = 'oll2s#^&o6g3xdo^sve73%1wvc_r#ms&_h4=06ygp!3nmhq4u1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+dotenv_file = os.path.join(BASE_DIR, ".env")
+if os.path.isfile(dotenv_file):
+    dotenv.load_dotenv(dotenv_file)
+
+BINANCE_API_KEY =  os.environ['BINANCE_API_KEY']
+BINANCE_API_SECRET =  os.environ['BINANCE_API_SECRET']
+APP_NAME =  os.environ['APP_NAME']
+
 
 ALLOWED_HOSTS = []
 
