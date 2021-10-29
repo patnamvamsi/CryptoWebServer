@@ -14,7 +14,7 @@ def get_historic_data(symbol):
     BASE_DIR = 'C:\\binance_historical_data\\' + symbol
     try:
         all_files = glob.glob(BASE_DIR +'\\'+ "/*")
-        print(all_files)
+        #print(all_files)
         li = []
 
         for filename in all_files:
@@ -24,10 +24,10 @@ def get_historic_data(symbol):
 
         frame = pd.concat(li, axis=0, ignore_index=True)
 
-        print(frame.head())
+        #print(frame.head())
         frame.columns = col
-        print(frame.head().to_json(orient='records'))
-        print(len(df.index))
+        #print(frame.head().to_json(orient='records'))
+        #print(len(df.index))
 
         return frame
     except Exception as file_ex:
@@ -35,7 +35,7 @@ def get_historic_data(symbol):
 
 
 def get_historic_data_plotly(symbol):
-    print("fetching data")
+    #print("fetching data")
     col = ["open_time", "open", "high", "low", "close", "volume", "close_time", "quote_asset_volume",
            "number_of_trades",
            "taker_buy_base_asset_volume", "taker_buy_quote_asset_volume", "ignored"]
@@ -43,7 +43,7 @@ def get_historic_data_plotly(symbol):
     try:
 
         all_files = glob.glob(BASE_DIR +'\\'+ "/*")
-        print(all_files)
+        #print(all_files)
         li = []
 
         for filename in all_files:

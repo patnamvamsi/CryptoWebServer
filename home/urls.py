@@ -9,7 +9,8 @@ urlpatterns = [
     path('historicaldata', views.historicaldata, name='historicaldata'),
     path('screener', views.screener, name='screener'),
     path('backtesting', views.backtesting, name='backtesting'),
-    path('papertrading', views.papertrading, name='papertrading')
+    path('papertrading', views.papertrading, name='papertrading'),
+    path('portfolio', views.portfolio, name='portfolio')
 ]
 
 #urlpatterns += staticfiles_urlpatterns

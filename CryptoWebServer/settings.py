@@ -33,7 +33,10 @@ if os.path.isfile(dotenv_file):
 BINANCE_API_KEY =  os.environ['BINANCE_API_KEY']
 BINANCE_API_SECRET =  os.environ['BINANCE_API_SECRET']
 APP_NAME =  os.environ['APP_NAME']
-
+WEB_SERVER = os.environ['WEB_SERVER']
+TA_ENGINE = os.environ['TA_ENGINE']
+MARKET_DATA = os.environ['MARKET_DATA']
+SENTIMENT_ENGINE = os.environ['SENTIMENT_ENGINE']
 
 ALLOWED_HOSTS = []
 
