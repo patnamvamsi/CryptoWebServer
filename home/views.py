@@ -15,13 +15,15 @@ def home(request):
 
 def binance(request):
     balances = ba.get_binance_positions()
-    return render(request, 'binance.html',{'balances': balances} | context)
+    context['balances'] = balances
+    return render(request, 'binance.html', context )
 
 
 def historicaldata(request):
     graph = hdc.get_historic_data_plotly("XRPAUD")
     data = hdc.get_historic_data("XRPAUD").to_json(orient = 'records')
-    return render(request, 'historicaldata.html', {'graph': graph,'data': data} | context)
+    context['graph'] = graph
+    return render(request, 'historicaldata.html', context)
 
 
 def screener(request):
@@ -31,7 +33,8 @@ def screener(request):
 def backtesting(request):
     #result_graph = bt.get_backtest_results()
     result_graph = req.get(settings.TA_ENGINE + '/RSIbacktest')
-    return render(request, 'backtesting.html', {'result_graph': result_graph.json()} | context)
+    context['result_graph'] =  result_graph.json()
+    return render(request, 'backtesting.html',  context)
 
 
 def papertrading(request):

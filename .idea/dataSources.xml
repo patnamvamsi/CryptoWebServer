@@ -7,5 +7,12 @@
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:C:\Dev\Projects\CryptoWebServer\db.sqlite3</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="db [2]" uuid="fa57bb35-9bf7-49cf-b2f0-8bc5abed7f2c">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/db.sqlite3</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

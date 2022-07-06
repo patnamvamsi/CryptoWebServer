@@ -38,7 +38,7 @@ TA_ENGINE = os.environ['TA_ENGINE']
 MARKET_DATA = os.environ['MARKET_DATA']
 SENTIMENT_ENGINE = os.environ['SENTIMENT_ENGINE']
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.environ['ALLOWED_HOSTS']]
 
 
 # Application definition

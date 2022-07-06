@@ -1,0 +1,7 @@
+django
+python-dotenv
+binance
+python-binance
+pandas
+plotly
+backtrader

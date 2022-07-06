@@ -11,9 +11,9 @@ def get_historic_data(symbol):
            "number_of_trades",
            "taker_buy_base_asset_volume", "taker_buy_quote_asset_volume", "ignored"]
 
-    BASE_DIR = 'C:\\binance_historical_data\\' + symbol
+    BASE_DIR = '/home/vamsi/Dev/Projects/data/' + symbol
     try:
-        all_files = glob.glob(BASE_DIR +'\\'+ "/*")
+        all_files = glob.glob(BASE_DIR +'/'+ "/*")
         #print(all_files)
         li = []
 
@@ -39,10 +39,10 @@ def get_historic_data_plotly(symbol):
     col = ["open_time", "open", "high", "low", "close", "volume", "close_time", "quote_asset_volume",
            "number_of_trades",
            "taker_buy_base_asset_volume", "taker_buy_quote_asset_volume", "ignored"]
-    BASE_DIR = 'C:\\binance_historical_data\\' + symbol
+    BASE_DIR = '/home/vamsi/Dev/Projects/data/' + symbol
     try:
 
-        all_files = glob.glob(BASE_DIR +'\\'+ "/*")
+        all_files = glob.glob(BASE_DIR +'/'+ "/*")
         #print(all_files)
         li = []
 
@@ -119,8 +119,8 @@ def get_historic_data_plotly(symbol):
 
 def get_tweet_sentiment(twitter_handle):
 
-    PATH = 'C:\\Dev\\Projects\\CryptoSentimentAnalysis\\data\\output'
-    df = pd.read_csv(PATH + '\\' +twitter_handle+'.csv' )
+    PATH = '/home/vamsi/Dev/Projects/CryptoSentimentAnalysis/data/output'
+    df = pd.read_csv(PATH + '/' +twitter_handle+'.csv' )
     non_neutral = df.loc[df['label'] != 'neutral']
     li = []
     for index, row in non_neutral.iterrows():
