@@ -32,13 +32,19 @@ if os.path.isfile(dotenv_file):
 
 BINANCE_API_KEY =  os.environ['BINANCE_API_KEY']
 BINANCE_API_SECRET =  os.environ['BINANCE_API_SECRET']
+
+# Zerodha Configuration
+ZERODHA_API_KEY = os.environ.get('ZERODHA_API_KEY', '')
+ZERODHA_API_SECRET = os.environ.get('ZERODHA_API_SECRET', '')
+ZERODHA_ACCESS_TOKEN = os.environ.get('ZERODHA_ACCESS_TOKEN', '')
+
 APP_NAME =  os.environ['APP_NAME']
 WEB_SERVER = os.environ['WEB_SERVER']
 TA_ENGINE = os.environ['TA_ENGINE']
 MARKET_DATA = os.environ['MARKET_DATA']
 SENTIMENT_ENGINE = os.environ['SENTIMENT_ENGINE']
 
-ALLOWED_HOSTS = [os.environ['ALLOWED_HOSTS']]
+ALLOWED_HOSTS = [os.environ['ALLOWED_HOSTS'],'localhost']
 
 
 # Application definition
@@ -50,6 +56,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'frontend.apps.FrontendConfig'
 ]
 
 MIDDLEWARE = [

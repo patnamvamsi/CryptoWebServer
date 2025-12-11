@@ -4,11 +4,17 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from app import binance_api as ba
+from app import zerodha_api as za
 from app import historic_data_csv as hdc
 from app import backtest as bt
 from django.conf import settings
 import requests as req
-from home.serializers import BinanceBalanceSerializer
+from home.serializers import (
+    BinanceBalanceSerializer,
+    ZerodhaPositionSerializer,
+    ZerodhaHoldingSerializer,
+    ZerodhaAccountSerializer
+)
 # Create your views here.
 
 context = {'title': settings.APP_NAME + ' Algo Platform'}
@@ -58,6 +64,66 @@ class BinancePositionsAPIView(APIView):
         try:
             balances = ba.get_binance_positions()
             serializer = BinanceBalanceSerializer(balances, many=True)
+            return Response({
+                'success': True,
+                'data': serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ZerodhaPositionsAPIView(APIView):
+    """
+    API endpoint to get Zerodha positions (intraday/F&O)
+    Returns JSON data for React frontend
+    """
+    def get(self, request):
+        try:
+            positions = za.get_zerodha_positions()
+            serializer = ZerodhaPositionSerializer(positions, many=True)
+            return Response({
+                'success': True,
+                'data': serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ZerodhaHoldingsAPIView(APIView):
+    """
+    API endpoint to get Zerodha holdings (long-term equity)
+    Returns JSON data for React frontend
+    """
+    def get(self, request):
+        try:
+            holdings = za.get_zerodha_holdings()
+            serializer = ZerodhaHoldingSerializer(holdings, many=True)
+            return Response({
+                'success': True,
+                'data': serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ZerodhaAccountAPIView(APIView):
+    """
+    API endpoint to get Zerodha account information
+    Returns JSON data for React frontend
+    """
+    def get(self, request):
+        try:
+            account_info = za.get_zerodha_account()
+            serializer = ZerodhaAccountSerializer(account_info)
             return Response({
                 'success': True,
                 'data': serializer.data

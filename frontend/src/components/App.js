@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { render } from "react-dom";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import BinancePositions from "./BinancePositions";
+import ZerodhaPositions from "./ZerodhaPositions";
+import BrokerPortfolio from "./BrokerPortfolio";
 
 export default class App extends Component {
   constructor(props) {
@@ -24,7 +26,13 @@ export default class App extends Component {
                     <Link className="nav-link" to="/">Home</Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/binance">Binance Positions</Link>
+                    <Link className="nav-link" to="/portfolio">Portfolio</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/binance">Binance</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/zerodha">Zerodha</Link>
                   </li>
                   <li className="nav-item">
                     <Link className="nav-link" to="/historical">Historical Data</Link>
@@ -41,10 +49,17 @@ export default class App extends Component {
             <Route path="/" element={
               <div className="text-center mt-5">
                 <h1>Welcome to Crypto Algo Trading Platform</h1>
-                <p className="lead">React-powered cryptocurrency trading dashboard</p>
+                <p className="lead">Multi-broker trading dashboard with Binance and Zerodha integration</p>
+                <div className="mt-4">
+                  <Link to="/portfolio" className="btn btn-primary btn-lg me-3">View Portfolio</Link>
+                  <Link to="/binance" className="btn btn-outline-primary btn-lg me-3">Binance</Link>
+                  <Link to="/zerodha" className="btn btn-outline-primary btn-lg">Zerodha</Link>
+                </div>
               </div>
             } />
+            <Route path="/portfolio" element={<BrokerPortfolio />} />
             <Route path="/binance" element={<BinancePositions />} />
+            <Route path="/zerodha" element={<ZerodhaPositions />} />
             <Route path="/historical" element={<div className="mt-5"><h2>Historical Data (Coming Soon)</h2></div>} />
             <Route path="/backtesting" element={<div className="mt-5"><h2>Backtesting (Coming Soon)</h2></div>} />
           </Routes>

@@ -5,3 +5,5 @@ python-binance
 pandas
 plotly
 backtrader
+djangorestframework
+kiteconnect
