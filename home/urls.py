@@ -10,7 +10,9 @@ urlpatterns = [
     path('screener', views.screener, name='screener'),
     path('backtesting', views.backtesting, name='backtesting'),
     path('papertrading', views.papertrading, name='papertrading'),
-    path('portfolio', views.portfolio, name='portfolio')
+    path('portfolio', views.portfolio, name='portfolio'),
+    # API endpoints for React
+    path('api/binance/positions', views.BinancePositionsAPIView.as_view(), name='api-binance-positions'),
 ]
 
 #urlpatterns += staticfiles_urlpatterns
