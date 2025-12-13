@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import BinancePositions from "./BinancePositions";
 import ZerodhaPositions from "./ZerodhaPositions";
 import BrokerPortfolio from "./BrokerPortfolio";
+import MarketDataAdmin from "./MarketDataAdmin";
 
 export default class App extends Component {
   constructor(props) {
@@ -40,6 +41,9 @@ export default class App extends Component {
                   <li className="nav-item">
                     <Link className="nav-link" to="/backtesting">Backtesting</Link>
                   </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/marketdata">Market Data Admin</Link>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -62,6 +66,7 @@ export default class App extends Component {
             <Route path="/zerodha" element={<ZerodhaPositions />} />
             <Route path="/historical" element={<div className="mt-5"><h2>Historical Data (Coming Soon)</h2></div>} />
             <Route path="/backtesting" element={<div className="mt-5"><h2>Backtesting (Coming Soon)</h2></div>} />
+            <Route path="/marketdata" element={<MarketDataAdmin />} />
           </Routes>
         </div>
       </Router>
