@@ -17,6 +17,13 @@ urlpatterns = [
     path('api/zerodha/positions', views.ZerodhaPositionsAPIView.as_view(), name='api-zerodha-positions'),
     path('api/zerodha/holdings', views.ZerodhaHoldingsAPIView.as_view(), name='api-zerodha-holdings'),
     path('api/zerodha/account', views.ZerodhaAccountAPIView.as_view(), name='api-zerodha-account'),
+    # API endpoints for React - Backtesting
+    path('api/backtest/symbols', views.SymbolsAPIView.as_view(), name='api-backtest-symbols'),
+    path('api/backtest/submit', views.BacktestSubmitAPIView.as_view(), name='api-backtest-submit'),
+    path('api/backtest/<str:job_id>/status', views.BacktestStatusAPIView.as_view(), name='api-backtest-status'),
+    path('api/backtest/<str:job_id>/results', views.BacktestResultsAPIView.as_view(), name='api-backtest-results'),
+    path('api/backtest/history', views.BacktestHistoryAPIView.as_view(), name='api-backtest-history'),
+    path('api/backtest/<str:job_id>/delete', views.BacktestDeleteAPIView.as_view(), name='api-backtest-delete'),
 ]
 
 #urlpatterns += staticfiles_urlpatterns

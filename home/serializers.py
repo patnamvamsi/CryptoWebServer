@@ -44,3 +44,40 @@ class ZerodhaAccountSerializer(serializers.Serializer):
     equity_used = serializers.FloatField(required=False)
     commodity_available = serializers.FloatField(required=False)
     error = serializers.CharField(required=False)
+
+
+class BacktestJobSerializer(serializers.ModelSerializer):
+    """Serializer for BacktestJob model"""
+    parameters_dict = serializers.SerializerMethodField()
+
+    class Meta:
+        model = BacktestJob
+        fields = '__all__'
+
+    def get_parameters_dict(self, obj):
+        return obj.get_parameters_dict()
+
+
+class BacktestSubmitSerializer(serializers.Serializer):
+    """Serializer for backtest submission request"""
+    strategy = serializers.ChoiceField(choices=['rsi', 'grid', 'macd', 'bollinger'])
+    symbol = serializers.CharField(max_length=20)
+    exchange = serializers.CharField(max_length=20, default='binance')
+    start_date = serializers.DateTimeField()
+    end_date = serializers.DateTimeField()
+    timeframe = serializers.ChoiceField(choices=['1m', '5m', '15m', '30m', '1h', '4h', '1d'])
+    initial_capital = serializers.DecimalField(max_digits=15, decimal_places=2, default=10000.0)
+    commission = serializers.DecimalField(max_digits=5, decimal_places=4, default=0.001)
+    parameters = serializers.JSONField(default=dict)
+    name = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    notes = serializers.CharField(required=False, allow_blank=True)
+
+
+class SymbolSerializer(serializers.Serializer):
+    """Serializer for symbol data"""
+    exchange = serializers.CharField()
+    symbol = serializers.CharField()
+    base_asset = serializers.CharField()
+    quote_asset = serializers.CharField()
+    active = serializers.BooleanField()
+    priority = serializers.IntegerField()

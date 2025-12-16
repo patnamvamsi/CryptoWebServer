@@ -5,6 +5,7 @@ import BinancePositions from "./BinancePositions";
 import ZerodhaPositions from "./ZerodhaPositions";
 import BrokerPortfolio from "./BrokerPortfolio";
 import MarketDataAdmin from "./MarketDataAdmin";
+import BacktestDashboard from "./BacktestDashboard";
 
 export default class App extends Component {
   constructor(props) {
@@ -65,7 +66,7 @@ export default class App extends Component {
             <Route path="/binance" element={<BinancePositions />} />
             <Route path="/zerodha" element={<ZerodhaPositions />} />
             <Route path="/historical" element={<div className="mt-5"><h2>Historical Data (Coming Soon)</h2></div>} />
-            <Route path="/backtesting" element={<div className="mt-5"><h2>Backtesting (Coming Soon)</h2></div>} />
+            <Route path="/backtesting" element={<BacktestDashboard />} />
             <Route path="/marketdata" element={<MarketDataAdmin />} />
           </Routes>
         </div>

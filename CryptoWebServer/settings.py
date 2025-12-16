@@ -39,10 +39,23 @@ ZERODHA_API_SECRET = os.environ.get('ZERODHA_API_SECRET', '')
 ZERODHA_ACCESS_TOKEN = os.environ.get('ZERODHA_ACCESS_TOKEN', '')
 
 APP_NAME =  os.environ['APP_NAME']
-WEB_SERVER = os.environ['WEB_SERVER']
-TA_ENGINE = os.environ['TA_ENGINE']
-MARKET_DATA = os.environ['MARKET_DATA']
-SENTIMENT_ENGINE = os.environ['SENTIMENT_ENGINE']
+
+# Microservices Configuration
+# WEB_SERVER = os.environ['WEB_SERVER']
+# MARKET_DATA = os.environ['MARKET_DATA']
+# SENTIMENT_ENGINE = os.environ['SENTIMENT_ENGINE']
+
+# CryptoTAEngine Configuration
+TA_ENGINE_HOST = os.environ.get('TA_ENGINE_HOST', 'http://127.0.0.1')
+TA_ENGINE_PORT = os.environ.get('TA_ENGINE_PORT', '8001')
+TA_ENGINE = f"{TA_ENGINE_HOST}:{TA_ENGINE_PORT}"
+
+# TimescaleDB Configuration (shared with CryptoMarketData)
+TIMESCALE_HOST = os.environ.get('TIMESCALE_HOST', 'localhost')
+TIMESCALE_PORT = os.environ.get('TIMESCALE_PORT', '5432')
+TIMESCALE_DB = os.environ.get('TIMESCALE_DB', 'market_data')
+TIMESCALE_USER = os.environ.get('TIMESCALE_USER', 'postgres')
+TIMESCALE_PASSWORD = os.environ.get('TIMESCALE_PASSWORD', 'postgres')
 
 ALLOWED_HOSTS = [os.environ['ALLOWED_HOSTS'],'localhost']
 
@@ -57,6 +70,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'home',
     'frontend.apps.FrontendConfig'
 ]
 
