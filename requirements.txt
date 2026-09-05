@@ -1,4 +1,4 @@
-django
+Django>=6.0,<6.1
 python-dotenv
 binance
 python-binance
@@ -6,6 +6,7 @@ pandas
 plotly
 backtrader
 djangorestframework
+djangorestframework-simplejwt
 kiteconnect
 psycopg2-binary
 redis

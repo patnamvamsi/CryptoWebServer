@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from urllib.parse import urlparse
+
 import dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -19,18 +21,25 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'oll2s#^&o6g3xdo^sve73%1wvc_r#ms&_h4=06ygp!3nmhq4u1'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 dotenv_file = os.path.join(BASE_DIR, ".env")
 if os.path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
+_platform_env = os.path.join(os.path.dirname(BASE_DIR), ".env")
+if os.path.isfile(_platform_env):
+    dotenv.load_dotenv(_platform_env, override=False)
 
-BINANCE_API_KEY =  os.environ['BINANCE_API_KEY']
-BINANCE_API_SECRET =  os.environ['BINANCE_API_SECRET']
+_COMMITTED_SECRET = 'oll2s#^&o6g3xdo^sve73%1wvc_r#ms&_h4=06ygp!3nmhq4u1'
+SECRET_KEY = os.environ.get('SECRET_KEY') or os.environ.get('DJANGO_SECRET_KEY') or ''
+if not SECRET_KEY or SECRET_KEY == _COMMITTED_SECRET:
+    raise RuntimeError(
+        "SECRET_KEY / DJANGO_SECRET_KEY must be set in the environment and "
+        "must not be the historically committed default."
+    )
+
+DEBUG = os.environ.get('DEBUG', 'false').lower() in ('1', 'true', 'yes')
+
+BINANCE_API_KEY = os.environ.get('BINANCE_API_KEY', '')
+BINANCE_API_SECRET = os.environ.get('BINANCE_API_SECRET', '')
 
 # Zerodha Configuration
 ZERODHA_API_KEY = os.environ.get('ZERODHA_API_KEY', '')
@@ -46,20 +55,30 @@ REDIS_DB = os.environ.get('REDIS_DB', '0')
 KAFKA_BOOTSTRAP_SERVERS = os.environ.get('KAFKA_BOOTSTRAP_SERVERS', 'kafka:9092')
 ENABLE_KAFKA_CONSUMER = os.environ.get('ENABLE_KAFKA_CONSUMER', 'True').lower() == 'true'
 
-APP_NAME =  os.environ['APP_NAME']
+APP_NAME = os.environ.get('APP_NAME', 'VRITTI')
 
-# Microservices Configuration
-# WEB_SERVER = os.environ['WEB_SERVER']
-# MARKET_DATA = os.environ['MARKET_DATA']
-# SENTIMENT_ENGINE = os.environ['SENTIMENT_ENGINE']
+# Service URLs. Prefer the compose-injected *_URL vars. Fall back to HOST:PORT
+# so existing local .env files keep working.
+MARKET_DATA_URL = os.environ.get('MARKET_DATA_URL', 'http://127.0.0.1:8002').rstrip('/')
 
-# CryptoTAEngine Configuration
-TA_ENGINE_HOST = os.environ.get('TA_ENGINE_HOST', 'http://127.0.0.1')
-TA_ENGINE_PORT = os.environ.get('TA_ENGINE_PORT', '8001')
-TA_ENGINE = f"{TA_ENGINE_HOST}:{TA_ENGINE_PORT}"
+_ta_url = os.environ.get('TA_ENGINE_URL')
+if _ta_url:
+    TA_ENGINE_URL = _ta_url.rstrip('/')
+    _parsed = urlparse(TA_ENGINE_URL)
+    TA_ENGINE_HOST = f"{_parsed.scheme}://{_parsed.hostname}" if _parsed.hostname else TA_ENGINE_URL
+    TA_ENGINE_PORT = str(_parsed.port or 8001)
+else:
+    TA_ENGINE_HOST = os.environ.get('TA_ENGINE_HOST', 'http://127.0.0.1')
+    TA_ENGINE_PORT = os.environ.get('TA_ENGINE_PORT', '8001')
+    TA_ENGINE_URL = f"{TA_ENGINE_HOST}:{TA_ENGINE_PORT}".rstrip('/')
+TA_ENGINE = TA_ENGINE_URL
 
-# Sentiment Engine Configuration
-SENTIMENT_ENGINE_URL = os.environ.get('SENTIMENT_ENGINE_URL', os.environ.get('SENTIMENT_ENGINE', None))
+SENTIMENT_ENGINE_URL = os.environ.get(
+    'SENTIMENT_ENGINE_URL',
+    os.environ.get('SENTIMENT_ENGINE', 'http://127.0.0.1:8004'),
+)
+if SENTIMENT_ENGINE_URL:
+    SENTIMENT_ENGINE_URL = SENTIMENT_ENGINE_URL.rstrip('/')
 
 # TimescaleDB Configuration (shared with CryptoMarketData)
 TIMESCALE_HOST = os.environ.get('TIMESCALE_HOST', 'localhost')
@@ -68,7 +87,10 @@ TIMESCALE_DB = os.environ.get('TIMESCALE_DB', 'market_data')
 TIMESCALE_USER = os.environ.get('TIMESCALE_USER', 'postgres')
 TIMESCALE_PASSWORD = os.environ.get('TIMESCALE_PASSWORD', 'postgres')
 
-ALLOWED_HOSTS = [os.environ['ALLOWED_HOSTS'],'localhost','192.168.0.201']
+_allowed = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1')
+ALLOWED_HOSTS = [h.strip() for h in _allowed.split(',') if h.strip()]
+if 'localhost' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('localhost')
 
 
 # Application definition

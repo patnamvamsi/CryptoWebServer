@@ -577,7 +577,7 @@ class HealthDashboardAPIView(APIView):
 
         # Check TA Engine Service
         try:
-            ta_engine_url = f"{settings.TA_ENGINE_HOST}:{settings.TA_ENGINE_PORT}"
+            ta_engine_url = settings.TA_ENGINE
             response = req.get(f"{ta_engine_url}/health", timeout=5)
             if response.status_code == 200:
                 health_status['components']['ta_engine'] = {
@@ -597,7 +597,7 @@ class HealthDashboardAPIView(APIView):
             health_status['components']['ta_engine'] = {
                 'status': 'unhealthy',
                 'error': str(e),
-                'url': f"{settings.TA_ENGINE_HOST}:{settings.TA_ENGINE_PORT}"
+                'url': settings.TA_ENGINE
             }
 
         # Check Redis (if configured)
