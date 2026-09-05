@@ -7,42 +7,24 @@ const ZerodhaPositions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(null);
-  const [activeTab, setActiveTab] = useState('holdings'); // 'holdings' or 'positions'
+  const [activeTab, setActiveTab] = useState('holdings');
 
   const fetchAllData = async () => {
     try {
       setLoading(true);
       setError(null);
-
-      // Fetch holdings, positions, and account info in parallel
       const [holdingsRes, positionsRes, accountRes] = await Promise.all([
-        fetch('/home/api/zerodha/holdings'),
-        fetch('/home/api/zerodha/positions'),
-        fetch('/home/api/zerodha/account')
+        fetch('/api/zerodha/holdings'),
+        fetch('/api/zerodha/positions'),
+        fetch('/api/zerodha/account')
       ]);
-
       const [holdingsData, positionsData, accountData] = await Promise.all([
-        holdingsRes.json(),
-        positionsRes.json(),
-        accountRes.json()
+        holdingsRes.json(), positionsRes.json(), accountRes.json()
       ]);
-
-      if (holdingsData.success) {
-        setHoldings(holdingsData.data);
-      } else {
-        throw new Error(holdingsData.error || 'Failed to fetch holdings');
-      }
-
-      if (positionsData.success) {
-        setPositions(positionsData.data);
-      } else {
-        console.warn('Positions fetch failed:', positionsData.error);
-      }
-
-      if (accountData.success) {
-        setAccountInfo(accountData.data);
-      }
-
+      if (holdingsData.success) setHoldings(holdingsData.data);
+      else throw new Error(holdingsData.error || 'Failed to fetch holdings');
+      if (positionsData.success) setPositions(positionsData.data);
+      if (accountData.success) setAccountInfo(accountData.data);
       setLastUpdate(new Date());
     } catch (err) {
       setError('Network error: ' + err.message);
@@ -53,154 +35,147 @@ const ZerodhaPositions = () => {
 
   useEffect(() => {
     fetchAllData();
-
-    // Auto-refresh every 60 seconds
     const interval = setInterval(fetchAllData, 60000);
-
     return () => clearInterval(interval);
   }, []);
 
-  const calculateTotalPnL = (data) => {
-    return data.reduce((sum, item) => sum + item.pnl, 0).toFixed(2);
-  };
+  const calculateTotalPnL = (data) => data.reduce((sum, item) => sum + item.pnl, 0).toFixed(2);
+  const calculateTotalInvested = () => holdings.reduce((sum, h) => sum + h.invested_value, 0).toFixed(2);
+  const calculateTotalCurrent = () => holdings.reduce((sum, h) => sum + h.current_value, 0).toFixed(2);
 
-  const calculateTotalInvested = () => {
-    return holdings.reduce((sum, h) => sum + h.invested_value, 0).toFixed(2);
-  };
-
-  const calculateTotalCurrent = () => {
-    return holdings.reduce((sum, h) => sum + h.current_value, 0).toFixed(2);
-  };
+  const tabStyle = (isActive) => ({
+    backgroundColor: isActive ? '#2a3a4e' : 'transparent',
+    color: isActive ? '#e0e6ed' : '#7a8ea0',
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '12px',
+    fontWeight: 500,
+    padding: '6px 14px'
+  });
 
   if (loading && holdings.length === 0 && positions.length === 0) {
     return (
-      <div className="container mt-5">
-        <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="mt-3">Loading Zerodha data...</p>
+      <div className="text-center" style={{ padding: '48px 0' }}>
+        <div className="spinner-border" style={{ width: '2rem', height: '2rem' }} role="status">
+          <span className="visually-hidden">Loading...</span>
         </div>
+        <p style={{ color: '#7a8ea0', marginTop: '12px', fontSize: '13px' }}>Loading Zerodha data...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mt-5">
-        <div className="alert alert-danger" role="alert">
-          <h4 className="alert-heading">Error!</h4>
-          <p>{error}</p>
-          <hr />
-          <button className="btn btn-danger" onClick={fetchAllData}>
-            Retry
-          </button>
-        </div>
+      <div style={{
+        backgroundColor: 'rgba(246,70,93,0.08)',
+        border: '1px solid rgba(246,70,93,0.2)',
+        borderRadius: '6px',
+        padding: '16px 20px',
+        margin: '24px 0'
+      }}>
+        <p style={{ color: '#f6465d', fontWeight: 500, marginBottom: '8px', fontSize: '13px' }}>Error: {error}</p>
+        <button className="btn btn-sm" style={{ backgroundColor: '#2a3a4e', color: '#e0e6ed', border: 'none' }} onClick={fetchAllData}>
+          Retry
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="container mt-4">
-      <div className="row mb-3">
-        <div className="col-md-8">
-          <h2>Zerodha Portfolio</h2>
-          <p className="text-muted">
-            Last updated: {lastUpdate ? lastUpdate.toLocaleTimeString() : 'Never'}
-          </p>
+    <div>
+      {/* Header */}
+      <div className="d-flex justify-content-between align-items-center" style={{ marginBottom: '16px' }}>
+        <div>
+          <h4 style={{ color: '#e0e6ed', fontSize: '14px', fontWeight: 600, marginBottom: '2px' }}>
+            Zerodha Portfolio
+          </h4>
+          <span style={{ color: '#546a7e', fontSize: '11px' }}>
+            Updated: {lastUpdate ? lastUpdate.toLocaleTimeString() : '—'}
+          </span>
         </div>
-        <div className="col-md-4 text-end">
-          <button
-            className="btn btn-primary"
-            onClick={fetchAllData}
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                Refreshing...
-              </>
-            ) : (
-              'Refresh'
-            )}
-          </button>
-        </div>
+        <button
+          className="btn btn-sm"
+          style={{
+            backgroundColor: loading ? '#2a3a4e' : '#f0a500',
+            color: loading ? '#7a8ea0' : '#0f1923',
+            border: 'none',
+            fontSize: '12px'
+          }}
+          onClick={fetchAllData}
+          disabled={loading}
+        >
+          {loading ? 'Refreshing...' : 'Refresh'}
+        </button>
       </div>
 
+      {/* Account Summary */}
       {accountInfo && !accountInfo.error && (
-        <div className="card mb-4">
-          <div className="card-body">
-            <h5 className="card-title">Account Summary</h5>
-            <div className="row">
-              <div className="col-md-3">
-                <strong>User:</strong> {accountInfo.user_name || accountInfo.user_id}
+        <div style={{
+          backgroundColor: '#1a2836',
+          border: '1px solid #2a3a4e',
+          borderRadius: '6px',
+          padding: '16px',
+          marginBottom: '16px'
+        }}>
+          <div className="row">
+            {[
+              { label: 'User', value: accountInfo.user_name || accountInfo.user_id, color: '#e0e6ed' },
+              { label: 'Available', value: `₹${accountInfo.equity_available?.toFixed(2) || '0.00'}`, color: '#e0e6ed' },
+              { label: 'Used Margin', value: `₹${accountInfo.equity_used?.toFixed(2) || '0.00'}`, color: '#f6465d' },
+              { label: 'Stats', value: `${holdings.length} Holdings · ${positions.length} Positions`, color: '#e0e6ed' }
+            ].map((item, i) => (
+              <div key={i} className="col-md-3">
+                <span style={{ color: '#7a8ea0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{item.label}</span>
+                <p style={{ color: item.color, fontSize: '14px', fontWeight: 500, marginBottom: 0 }}>{item.value}</p>
               </div>
-              <div className="col-md-3">
-                <strong>Available Funds:</strong> ₹{accountInfo.equity_available?.toFixed(2) || '0.00'}
-              </div>
-              <div className="col-md-3">
-                <strong>Used Margin:</strong> ₹{accountInfo.equity_used?.toFixed(2) || '0.00'}
-              </div>
-              <div className="col-md-3">
-                <strong>Holdings:</strong> {holdings.length} | <strong>Positions:</strong> {positions.length}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Tab Navigation */}
-      <ul className="nav nav-tabs mb-3">
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === 'holdings' ? 'active' : ''}`}
-            onClick={() => setActiveTab('holdings')}
-          >
-            Holdings ({holdings.length})
-          </button>
-        </li>
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === 'positions' ? 'active' : ''}`}
-            onClick={() => setActiveTab('positions')}
-          >
-            Positions ({positions.length})
-          </button>
-        </li>
-      </ul>
+      {/* Tab switcher */}
+      <div className="d-flex" style={{ gap: '4px', backgroundColor: '#1a2836', padding: '4px', borderRadius: '6px', marginBottom: '16px', display: 'inline-flex' }}>
+        <button style={tabStyle(activeTab === 'holdings')} onClick={() => setActiveTab('holdings')}>
+          Holdings ({holdings.length})
+        </button>
+        <button style={tabStyle(activeTab === 'positions')} onClick={() => setActiveTab('positions')}>
+          Positions ({positions.length})
+        </button>
+      </div>
 
       {/* Holdings Tab */}
       {activeTab === 'holdings' && (
         <>
           {holdings.length === 0 ? (
-            <div className="alert alert-info">
-              No holdings found. Your equity portfolio appears to be empty.
-            </div>
+            <p style={{ color: '#7a8ea0', fontSize: '13px', padding: '24px 0', textAlign: 'center' }}>
+              No holdings found.
+            </p>
           ) : (
             <>
-              <div className="card mb-4">
-                <div className="card-body">
-                  <h5 className="card-title">Holdings Summary</h5>
-                  <div className="row">
-                    <div className="col-md-4">
-                      <strong>Total Invested:</strong> ₹{calculateTotalInvested()}
+              <div style={{
+                backgroundColor: '#1a2836',
+                border: '1px solid #2a3a4e',
+                borderRadius: '6px',
+                padding: '16px',
+                marginBottom: '16px'
+              }}>
+                <div className="row">
+                  {[
+                    { label: 'Total Invested', value: `₹${calculateTotalInvested()}`, color: '#e0e6ed' },
+                    { label: 'Current Value', value: `₹${calculateTotalCurrent()}`, color: '#e0e6ed' },
+                    { label: 'Total P&L', value: `₹${calculateTotalPnL(holdings)}`, color: calculateTotalPnL(holdings) >= 0 ? '#0ecb81' : '#f6465d' }
+                  ].map((item, i) => (
+                    <div key={i} className="col-md-4">
+                      <span style={{ color: '#7a8ea0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{item.label}</span>
+                      <p style={{ color: item.color, fontSize: '18px', fontWeight: 600, marginBottom: 0 }}>{item.value}</p>
                     </div>
-                    <div className="col-md-4">
-                      <strong>Current Value:</strong> ₹{calculateTotalCurrent()}
-                    </div>
-                    <div className="col-md-4">
-                      <strong>Total P&L:</strong>{' '}
-                      <span className={calculateTotalPnL(holdings) >= 0 ? 'text-success' : 'text-danger'}>
-                        ₹{calculateTotalPnL(holdings)}
-                      </span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
               <div className="table-responsive">
-                <table className="table table-striped table-hover">
-                  <thead className="table-dark">
+                <table className="table">
+                  <thead>
                     <tr>
                       <th>Symbol</th>
                       <th>Exchange</th>
@@ -216,17 +191,17 @@ const ZerodhaPositions = () => {
                   <tbody>
                     {holdings.map((holding, index) => (
                       <tr key={index}>
-                        <td><strong>{holding.tradingsymbol}</strong></td>
-                        <td>{holding.exchange}</td>
-                        <td className="text-end">{holding.quantity}</td>
-                        <td className="text-end">₹{holding.average_price.toFixed(2)}</td>
-                        <td className="text-end">₹{holding.last_price.toFixed(2)}</td>
-                        <td className="text-end">₹{holding.invested_value.toFixed(2)}</td>
-                        <td className="text-end">₹{holding.current_value.toFixed(2)}</td>
-                        <td className={`text-end ${holding.pnl >= 0 ? 'text-success' : 'text-danger'}`}>
+                        <td style={{ fontWeight: 500, color: '#e0e6ed' }}>{holding.tradingsymbol}</td>
+                        <td style={{ color: '#7a8ea0' }}>{holding.exchange}</td>
+                        <td className="text-end" style={{ color: '#7a8ea0' }}>{holding.quantity}</td>
+                        <td className="text-end" style={{ color: '#7a8ea0' }}>₹{holding.average_price.toFixed(2)}</td>
+                        <td className="text-end" style={{ color: '#e0e6ed' }}>₹{holding.last_price.toFixed(2)}</td>
+                        <td className="text-end" style={{ color: '#7a8ea0' }}>₹{holding.invested_value.toFixed(2)}</td>
+                        <td className="text-end" style={{ color: '#e0e6ed', fontWeight: 500 }}>₹{holding.current_value.toFixed(2)}</td>
+                        <td className="text-end" style={{ color: holding.pnl >= 0 ? '#0ecb81' : '#f6465d', fontWeight: 500 }}>
                           ₹{holding.pnl.toFixed(2)}
                         </td>
-                        <td className={`text-end ${holding.pnl_percent >= 0 ? 'text-success' : 'text-danger'}`}>
+                        <td className="text-end" style={{ color: holding.pnl_percent >= 0 ? '#0ecb81' : '#f6465d', fontWeight: 500 }}>
                           {holding.pnl_percent.toFixed(2)}%
                         </td>
                       </tr>
@@ -243,26 +218,27 @@ const ZerodhaPositions = () => {
       {activeTab === 'positions' && (
         <>
           {positions.length === 0 ? (
-            <div className="alert alert-info">
-              No active positions. You don't have any open intraday or F&O trades.
-            </div>
+            <p style={{ color: '#7a8ea0', fontSize: '13px', padding: '24px 0', textAlign: 'center' }}>
+              No active positions.
+            </p>
           ) : (
             <>
-              <div className="card mb-4">
-                <div className="card-body">
-                  <h5 className="card-title">Positions Summary</h5>
-                  <p className="card-text">
-                    <strong>Total P&L:</strong>{' '}
-                    <span className={calculateTotalPnL(positions) >= 0 ? 'text-success' : 'text-danger'}>
-                      ₹{calculateTotalPnL(positions)}
-                    </span>
-                  </p>
-                </div>
+              <div style={{
+                backgroundColor: '#1a2836',
+                border: '1px solid #2a3a4e',
+                borderRadius: '6px',
+                padding: '16px',
+                marginBottom: '16px'
+              }}>
+                <span style={{ color: '#7a8ea0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Total P&L</span>
+                <p style={{ color: calculateTotalPnL(positions) >= 0 ? '#0ecb81' : '#f6465d', fontSize: '18px', fontWeight: 600, marginBottom: 0 }}>
+                  ₹{calculateTotalPnL(positions)}
+                </p>
               </div>
 
               <div className="table-responsive">
-                <table className="table table-striped table-hover">
-                  <thead className="table-dark">
+                <table className="table">
+                  <thead>
                     <tr>
                       <th>Symbol</th>
                       <th>Exchange</th>
@@ -277,18 +253,22 @@ const ZerodhaPositions = () => {
                   <tbody>
                     {positions.map((position, index) => (
                       <tr key={index}>
-                        <td><strong>{position.tradingsymbol}</strong></td>
-                        <td>{position.exchange}</td>
+                        <td style={{ fontWeight: 500, color: '#e0e6ed' }}>{position.tradingsymbol}</td>
+                        <td style={{ color: '#7a8ea0' }}>{position.exchange}</td>
                         <td>
-                          <span className={`badge bg-${position.position_type === 'DAY' ? 'info' : 'warning'}`}>
+                          <span className="badge" style={{
+                            backgroundColor: position.position_type === 'DAY' ? 'rgba(91,141,238,0.15)' : 'rgba(240,185,11,0.15)',
+                            color: position.position_type === 'DAY' ? '#5b8dee' : '#f0b90b',
+                            fontSize: '11px'
+                          }}>
                             {position.position_type}
                           </span>
                         </td>
-                        <td>{position.product}</td>
-                        <td className="text-end">{position.quantity}</td>
-                        <td className="text-end">₹{position.average_price.toFixed(2)}</td>
-                        <td className="text-end">₹{position.last_price.toFixed(2)}</td>
-                        <td className={`text-end ${position.pnl >= 0 ? 'text-success' : 'text-danger'}`}>
+                        <td style={{ color: '#7a8ea0' }}>{position.product}</td>
+                        <td className="text-end" style={{ color: '#7a8ea0' }}>{position.quantity}</td>
+                        <td className="text-end" style={{ color: '#7a8ea0' }}>₹{position.average_price.toFixed(2)}</td>
+                        <td className="text-end" style={{ color: '#e0e6ed' }}>₹{position.last_price.toFixed(2)}</td>
+                        <td className="text-end" style={{ color: position.pnl >= 0 ? '#0ecb81' : '#f6465d', fontWeight: 500 }}>
                           ₹{position.pnl.toFixed(2)}
                         </td>
                       </tr>

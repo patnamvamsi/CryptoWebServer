@@ -7,3 +7,12 @@ plotly
 backtrader
 djangorestframework
 kiteconnect
+psycopg2-binary
+redis
+django-redis
+channels
+channels-redis
+daphne
+websockets
+whitenoise
+kafka-python

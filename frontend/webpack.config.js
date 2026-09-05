@@ -16,7 +16,16 @@ module.exports = {
           loader: "babel-loader",
         },
       },
+      {
+        test: /\.m?js$/,
+        resolve: {
+          fullySpecified: false,
+        },
+      },
     ],
+  },
+  resolve: {
+    fullySpecified: false,
   },
   optimization: {
     minimize: true,

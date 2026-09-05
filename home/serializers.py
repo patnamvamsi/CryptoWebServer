@@ -81,3 +81,23 @@ class SymbolSerializer(serializers.Serializer):
     quote_asset = serializers.CharField()
     active = serializers.BooleanField()
     priority = serializers.IntegerField()
+
+
+class OHLCVSerializer(serializers.Serializer):
+    """Serializer for OHLCV (candlestick) data"""
+    timestamp = serializers.DateTimeField()
+    open = serializers.FloatField()
+    high = serializers.FloatField()
+    low = serializers.FloatField()
+    close = serializers.FloatField()
+    volume = serializers.FloatField()
+
+
+class HistoricalDataRequestSerializer(serializers.Serializer):
+    """Serializer for historical data request parameters"""
+    exchange = serializers.CharField(max_length=20, required=False, default='binance')
+    symbol = serializers.CharField(max_length=20)
+    timeframe = serializers.ChoiceField(choices=['1m', '5m', '15m', '30m', '1h', '4h', '1d'], default='1h')
+    start_date = serializers.DateTimeField(required=False)
+    end_date = serializers.DateTimeField(required=False)
+    limit = serializers.IntegerField(default=100, max_value=5000, min_value=1)

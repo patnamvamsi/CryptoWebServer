@@ -15,7 +15,6 @@ import dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_DIR = os.path.join(BASE_DIR,'static')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -38,6 +37,15 @@ ZERODHA_API_KEY = os.environ.get('ZERODHA_API_KEY', '')
 ZERODHA_API_SECRET = os.environ.get('ZERODHA_API_SECRET', '')
 ZERODHA_ACCESS_TOKEN = os.environ.get('ZERODHA_ACCESS_TOKEN', '')
 
+# Redis Configuration
+REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
+REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
+REDIS_DB = os.environ.get('REDIS_DB', '0')
+
+# Kafka Configuration (for real-time price updates from CryptoMarketData)
+KAFKA_BOOTSTRAP_SERVERS = os.environ.get('KAFKA_BOOTSTRAP_SERVERS', 'kafka:9092')
+ENABLE_KAFKA_CONSUMER = os.environ.get('ENABLE_KAFKA_CONSUMER', 'True').lower() == 'true'
+
 APP_NAME =  os.environ['APP_NAME']
 
 # Microservices Configuration
@@ -50,6 +58,9 @@ TA_ENGINE_HOST = os.environ.get('TA_ENGINE_HOST', 'http://127.0.0.1')
 TA_ENGINE_PORT = os.environ.get('TA_ENGINE_PORT', '8001')
 TA_ENGINE = f"{TA_ENGINE_HOST}:{TA_ENGINE_PORT}"
 
+# Sentiment Engine Configuration
+SENTIMENT_ENGINE_URL = os.environ.get('SENTIMENT_ENGINE_URL', os.environ.get('SENTIMENT_ENGINE', None))
+
 # TimescaleDB Configuration (shared with CryptoMarketData)
 TIMESCALE_HOST = os.environ.get('TIMESCALE_HOST', 'localhost')
 TIMESCALE_PORT = os.environ.get('TIMESCALE_PORT', '5432')
@@ -57,7 +68,7 @@ TIMESCALE_DB = os.environ.get('TIMESCALE_DB', 'market_data')
 TIMESCALE_USER = os.environ.get('TIMESCALE_USER', 'postgres')
 TIMESCALE_PASSWORD = os.environ.get('TIMESCALE_PASSWORD', 'postgres')
 
-ALLOWED_HOSTS = [os.environ['ALLOWED_HOSTS'],'localhost']
+ALLOWED_HOSTS = [os.environ['ALLOWED_HOSTS'],'localhost','192.168.0.201']
 
 
 # Application definition
@@ -69,6 +80,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'rest_framework',
     'home',
     'frontend.apps.FrontendConfig'
@@ -76,6 +88,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files with Daphne/ASGI
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -89,7 +102,7 @@ ROOT_URLCONF = 'CryptoWebServer.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['home/../templates', 'home/../static'],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -103,15 +116,31 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'CryptoWebServer.wsgi.application'
+ASGI_APPLICATION = 'CryptoWebServer.asgi.application'
+
+# Channel Layers Configuration (for WebSocket support)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(REDIS_HOST, int(REDIS_PORT))],
+        },
+    },
+}
 
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
+# Using TimescaleDB (PostgreSQL) for all Django models
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': TIMESCALE_DB,
+        'USER': TIMESCALE_USER,
+        'PASSWORD': TIMESCALE_PASSWORD,
+        'HOST': TIMESCALE_HOST,
+        'PORT': TIMESCALE_PORT,
     }
 }
 
@@ -153,4 +182,27 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [STATIC_DIR,]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# WhiteNoise configuration for serving static files with Daphne/ASGI
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True if DEBUG else False
+
+
+# Cache Configuration
+# Redis cache for market data (symbols, OHLCV)
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'SOCKET_CONNECT_TIMEOUT': 5,
+            'SOCKET_TIMEOUT': 5,
+            'RETRY_ON_TIMEOUT': True,
+            'MAX_CONNECTIONS': 50,
+        },
+        'KEY_PREFIX': 'vritti',
+        'TIMEOUT': 300,  # Default TTL: 5 minutes
+    }
+}

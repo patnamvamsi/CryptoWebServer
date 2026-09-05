@@ -61,3 +61,6 @@ yarn-error.log*
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Graphify knowledge graph output
+graphify-out/

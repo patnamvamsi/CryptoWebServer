@@ -1,7 +1,11 @@
 from kiteconnect import KiteConnect
 from django.conf import settings
 from app.broker_interface import BrokerInterface
+from app.zerodha_token_manager import get_zerodha_token
 from typing import List, Dict, Any
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ZerodhaBroker(BrokerInterface):
@@ -10,12 +14,37 @@ class ZerodhaBroker(BrokerInterface):
 
     Handles both holdings (long-term equity investments) and positions
     (active intraday/F&O trades).
+
+    Token Management:
+    - Retrieves access token from Redis (shared with CryptoMarketData service)
+    - Falls back to settings.ZERODHA_ACCESS_TOKEN if Redis unavailable
     """
 
     def __init__(self):
-        """Initialize Kite Connect client with API credentials from settings."""
+        """
+        Initialize Kite Connect client with API credentials.
+
+        Access token is retrieved from:
+        1. Redis (shared token from market-data service) - preferred
+        2. Django settings (ZERODHA_ACCESS_TOKEN) - fallback
+
+        Raises:
+            Exception: If no access token is available
+        """
         self.kite = KiteConnect(api_key=settings.ZERODHA_API_KEY)
-        self.kite.set_access_token(settings.ZERODHA_ACCESS_TOKEN)
+
+        # Get access token from Redis (shared) or settings (fallback)
+        access_token = get_zerodha_token()
+
+        if not access_token:
+            raise Exception(
+                "No Zerodha access token available. Please ensure:\n"
+                "1. CryptoMarketData service has authenticated and stored token in Redis, OR\n"
+                "2. ZERODHA_ACCESS_TOKEN is set in Django settings/environment"
+            )
+
+        self.kite.set_access_token(access_token)
+        logger.info("ZerodhaBroker initialized with access token")
 
     def get_positions(self) -> List[Dict[str, Any]]:
         """

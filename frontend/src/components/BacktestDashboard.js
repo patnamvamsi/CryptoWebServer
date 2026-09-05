@@ -5,12 +5,11 @@ import BacktestResults from './BacktestResults';
 import BacktestComparison from './BacktestComparison';
 
 const BacktestDashboard = () => {
-  const [activeView, setActiveView] = useState('form'); // 'form', 'history', 'results', 'comparison'
+  const [activeView, setActiveView] = useState('form');
   const [currentJobId, setCurrentJobId] = useState(null);
   const [compareJobIds, setCompareJobIds] = useState([]);
 
   const handleSubmitSuccess = (data) => {
-    // After successful submission, show results view
     setCurrentJobId(data.job_id);
     setActiveView('results');
   };
@@ -32,7 +31,7 @@ const BacktestDashboard = () => {
   };
 
   return (
-    <div className="container-fluid mt-4">
+    <div style={{ paddingTop: '24px', paddingBottom: '24px' }}>
       {/* Tab Navigation */}
       <ul className="nav nav-tabs mb-4">
         <li className="nav-item">
@@ -53,45 +52,20 @@ const BacktestDashboard = () => {
         </li>
         {activeView === 'results' && (
           <li className="nav-item">
-            <button className="nav-link active">
-              Results
-            </button>
+            <button className="nav-link active">Results</button>
           </li>
         )}
         {activeView === 'comparison' && (
           <li className="nav-item">
-            <button className="nav-link active">
-              Comparison
-            </button>
+            <button className="nav-link active">Comparison</button>
           </li>
         )}
       </ul>
 
-      {/* Content */}
-      {activeView === 'form' && (
-        <BacktestForm onSubmitSuccess={handleSubmitSuccess} />
-      )}
-
-      {activeView === 'history' && (
-        <BacktestHistory
-          onViewResults={handleViewResults}
-          onCompare={handleCompare}
-        />
-      )}
-
-      {activeView === 'results' && currentJobId && (
-        <BacktestResults
-          jobId={currentJobId}
-          onBack={handleBackToHistory}
-        />
-      )}
-
-      {activeView === 'comparison' && compareJobIds.length > 0 && (
-        <BacktestComparison
-          jobIds={compareJobIds}
-          onBack={handleBackToHistory}
-        />
-      )}
+      {activeView === 'form' && <BacktestForm onSubmitSuccess={handleSubmitSuccess} />}
+      {activeView === 'history' && <BacktestHistory onViewResults={handleViewResults} onCompare={handleCompare} />}
+      {activeView === 'results' && currentJobId && <BacktestResults jobId={currentJobId} onBack={handleBackToHistory} />}
+      {activeView === 'comparison' && compareJobIds.length > 0 && <BacktestComparison jobIds={compareJobIds} onBack={handleBackToHistory} />}
     </div>
   );
 };
